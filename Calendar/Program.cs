@@ -1,5 +1,6 @@
 ﻿using System;
-
+using System.Globalization;
+using System.Threading;
 
 namespace Calendar
 {
@@ -18,6 +19,8 @@ namespace Calendar
         static void Main(string[] args)
         {
             Console.WriteLine("Pls enter date");
+            Thread.CurrentThread.CurrentCulture = new CultureInfo("ru-RU");
+            Thread.CurrentThread.CurrentCulture.DateTimeFormat.FirstDayOfWeek = DayOfWeek.Sunday;
             DateTime time;
             while (!DateTime.TryParse(Console.ReadLine(), out time))
             {
@@ -35,15 +38,19 @@ namespace Calendar
 
         private static void PrintAllDaysInMonth(DateTime startOfMonth)
         {
+            int holidays = 0;
+            int workDays = 0;
             for (DateTime i = startOfMonth; i.Month.Equals(startOfMonth.Month); i = i.AddDays(1))
             {
                 if (i.DayOfWeek.IsHolday())
                 {
                     Console.ForegroundColor = ConsoleColor.Red;
+                    holidays++;
                 }
                 else
                 {
                     Console.ResetColor();
+                    workDays++;
                 }
                 Console.Write($"{i.Day,-15}");
                 if (i.DayOfWeek.Equals(DayOfWeek.Saturday))
@@ -52,11 +59,13 @@ namespace Calendar
                 }
             }
             Console.WriteLine();
+            Console.ResetColor();
+            Console.WriteLine($"workdays: {workDays}; holidays: {holidays}");
         }
 
         private static void SkipEmptyWeekDays(DateTime startOfMonth)
         {
-            foreach (DayOfWeek weekDay in Enum.GetValues(typeof(DayOfWeek)))
+            foreach (var weekDay in Enum.GetValues(typeof(DayOfWeek)))
             {
                 if (weekDay.Equals(startOfMonth.DayOfWeek))
                 {
@@ -71,9 +80,9 @@ namespace Calendar
 
         private static void PrintHeader()
         {
-            foreach (DayOfWeek weekDay in Enum.GetValues(typeof(DayOfWeek)))
+            foreach (var day in CultureInfo.CurrentCulture.DateTimeFormat.DayNames)
             {
-                Console.Write("{0,-15}", weekDay);
+                Console.Write("{0,-15}",day);
             }
             Console.WriteLine();
         }
